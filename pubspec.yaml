@@ -26,7 +26,7 @@ dependencies:
   signature:
   http:
   image_picker:
-
+  webview_flutter:
 
 dev_dependencies:
   flutter_test:

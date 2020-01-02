@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
 
-import 'dart:ui';
 import 'dart:convert';
 
 class SignatureWindow extends StatefulWidget {
@@ -11,9 +10,9 @@ class SignatureWindow extends StatefulWidget {
 }
 
 class _SignatureWindowState extends State<SignatureWindow> {
-    var _signatureCanvas = Signature(
+  var _signatureCanvas = Signature(
     height: 300,
-    backgroundColor: Colors.lightBlueAccent,
+    backgroundColor: Colors.white,
   );
 
   static final String uploadEndPoint =
@@ -22,10 +21,12 @@ class _SignatureWindowState extends State<SignatureWindow> {
   String status = '';
   String base64Image;
   String errMessage = 'Error Uploading Image';
+  String nullImg =
+      'iVBORw0KGgoAAAANSUhEUgAAAWgAAAEsCAYAAADuLCmvAAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZIgAAAG6SURBVHic7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBHA5kGAAGsmxQQAAAAAElFTkSuQmCC';
 
   var data;
 
-    setStatus(String message) {
+  setStatus(String message) {
     setState(() {
       status = message;
     });
@@ -33,89 +34,100 @@ class _SignatureWindowState extends State<SignatureWindow> {
 
   startUpload() {
     setStatus('Uploading Image...');
-    if (null == data) {
+    if (nullImg == base64Image) {
       setStatus(errMessage);
+      popup(context, "Tanda Tangan Tidak Ada!");
       print(errMessage);
       return;
     }
-    String fileName = data.path.split('/').last;
-    print(fileName);
+    String fileName = 'abcc.png';
+    upload(fileName);
+    upload(base64Image);
   }
 
-    upload(String fileName) {
-    http.post(uploadEndPoint, body: {
+  upload(String fileName) async {
+    final response = await http.post(uploadEndPoint, body: {
       "image": base64Image,
       "name": fileName,
-    }).then((result) {
-      setStatus(result.statusCode == 200 ? result.body : errMessage);
-    }).catchError((error) {
-      setStatus(error);
     });
+    final abc = jsonDecode(response.body);
+    int value = abc["value"];
+    String pesan = abc["massage"];
+    if (value == 1) {
+      print(pesan);
+      popup(context, "Sukses !");
+    } else {
+      popup(context, "Upload Gagal! ");
+    }
   }
 
   @override
   void initState() {
     super.initState();
   }
- @override
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Builder(
         builder: (context) => Scaffold(
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  //SIGNATURE CANVAS
-                  _signatureCanvas,
-                  //OK AND CLEAR BUTTONS
-                  Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _signatureCanvas,
+              Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      IconButton(
+                        icon: const Icon(Icons.check),
+                        color: Colors.blue,
+                        onPressed: () async {
+                          data = await _signatureCanvas.exportBytes();
+                          base64Image = base64.encode(data);
+                          startUpload();
+                        },
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.max,
-                        children: <Widget>[
-                          //SHOW EXPORTED IMAGE IN NEW ROUTE
-                          IconButton(
-                            icon: const Icon(Icons.check),
-                            color: Colors.blue,
-                            onPressed: () async {
-                               data = await _signatureCanvas.exportBytes();
-                               startUpload();
-                               /*base64Image =  base64.encode(data);
-                               print(base64Image);*/
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                    return Scaffold(
-                                      appBar: AppBar(),
-                                      body: Container(
-                                        color: Colors.grey[300],
-                                        child: Image.memory(data),                                        
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                          //CLEAR CANVAS
-                          IconButton(
-                            icon: const Icon(Icons.clear),
-                            color: Colors.blue,
-                            onPressed: () {
-                              setState(() {
-                                return _signatureCanvas.clear();
-                              });
-                            },
-                          ),
-                        ],
-                      )),
-                ],
-              ),
-            ),
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        color: Colors.blue,
+                        onPressed: () {
+                          setState(() {
+                            return _signatureCanvas.clear();
+                          });
+                        },
+                      ),
+                    ],
+                  )),
+            ],
+          ),
+        ),
       ),
     );
   }
+}
+
+popup(BuildContext context, String title) {
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Kembali'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

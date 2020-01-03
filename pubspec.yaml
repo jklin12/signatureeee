@@ -27,6 +27,7 @@ dependencies:
   http:
   image_picker:
   webview_flutter:
+  unicorndial:
 
 dev_dependencies:
   flutter_test:

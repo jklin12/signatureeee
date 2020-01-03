@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
+import 'package:unicorndial/unicorndial.dart';
 
 class WebVieww extends StatefulWidget {
+  final String spk;
+  final String nomor;
+  WebVieww({this.spk, this.nomor});
   @override
   _WebViewState createState() => _WebViewState();
 }
@@ -44,10 +48,9 @@ class _WebViewState extends State<WebVieww> {
       print(errMessage);
       return;
     }
-    String fileName = 'abcc.png';
+    String fileName = widget.nomor + 'abcc.png';
     //print(base64Image);
-    print(base64Image);
-    print(nullImg);
+    print(fileName);
     upload(fileName);
     upload(base64Image);
   }
@@ -79,7 +82,6 @@ class _WebViewState extends State<WebVieww> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.red,
           content: SingleChildScrollView(
             child: Container(
               height: 400.0,
@@ -92,6 +94,7 @@ class _WebViewState extends State<WebVieww> {
                     trailing: IconButton(
                       icon: Icon(
                         Icons.arrow_back_ios,
+                        color: Colors.blue,
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -137,60 +140,86 @@ class _WebViewState extends State<WebVieww> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    print(widget.nomor);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var childButtons = List<UnicornButton>();
+
+    childButtons.add(UnicornButton(
+        hasLabel: true,
+        labelText: "Pelanggan",
+        currentButton: FloatingActionButton(
+          heroTag: "train",
+          backgroundColor: Colors.redAccent,
+          mini: true,
+          child: Icon(Icons.create),
+          onPressed: () {
+            ontabbb(
+              context,
+              "TTD PELANGGAN",
+            );
+          },
+        )));
+
+    childButtons.add(UnicornButton(
+        hasLabel: true,
+        labelText: "Koordinator IKR",
+        currentButton: FloatingActionButton(
+          heroTag: "airplane",
+          backgroundColor: Colors.greenAccent,
+          mini: true,
+          child: Icon(Icons.create),
+          onPressed: () {
+            ontabbb(
+              context,
+              "TTD Koordinator IKR",
+            );
+          },
+        )));
+
+    childButtons.add(UnicornButton(
+        hasLabel: true,
+        labelText: "Pelaksana",
+        currentButton: FloatingActionButton(
+          heroTag: "directions",
+          backgroundColor: Colors.blueAccent,
+          mini: true,
+          child: Icon(Icons.create),
+          onPressed: () {
+            ontabbb(
+              context,
+              "TTD Pelaksana",
+            );
+          },
+        )));
+
     return Scaffold(
-        appBar: AppBar(title: Text("SPK")),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 30.0),
-                child: ListTile(
-                    title: Text('TTD PELANGGAN'),
-                    onTap: () {
-                      ontabbb(
-                        context,
-                        "TTD PELANGGAN",
-                      );
-                    }),
-              ),
-              ListTile(
-                title: Text('TTD KOORDINATOR IKR '),
-                onTap: () {
-                  ontabbb(
-                    context,
-                    "TTD PELAKSANA IKR",
-                  );
-                },
-              ),
-              ListTile(
-                title: Text('TTD PELAKSANA'),
-                onTap: () {
-                  ontabbb(
-                    context,
-                    "TTD PELAKSANA",
-                  );
-                },
-              ),
-            ],
-          ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Builder(
+          builder: (BuildContext context) {
+            return WebView(
+              initialUrl: widget.spk,
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (WebViewController webViewController) {
+                _controller.complete(webViewController);
+              },
+            );
+          },
         ),
-        body: Container(
-          height: MediaQuery.of(context).size.height ,
-          width: MediaQuery.of(context).size.width ,
-          child: Builder(
-            builder: (BuildContext context) {
-              return WebView(
-                initialUrl: 'http://202.169.224.10/spk/',
-                javascriptMode: JavascriptMode.unrestricted,
-                onWebViewCreated: (WebViewController webViewController) {
-                  _controller.complete(webViewController);
-                },
-              );
-            },
-          ),
-        ));
+      ),
+      floatingActionButton: UnicornDialer(
+          backgroundColor: Color.fromRGBO(255, 255, 255, 0.6),
+          parentButtonBackground: Colors.redAccent,
+          orientation: UnicornOrientation.VERTICAL,
+          parentButton: Icon(Icons.add),
+          childButtons: childButtons),
+    );
   }
 }
 

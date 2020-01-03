@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:signature_new/webview.dart';
+import 'package:signature_new/dashboard.dart';
 
 const directoryName = 'Signature';
 
 void main() {
   runApp(MaterialApp(
-    home: WebVieww(),
+    home: Dashboard(),
     debugShowCheckedModeBanner: false,
   ));
 }

@@ -40,7 +40,7 @@ class _WebViewState extends State<WebVieww> {
     });
   }
 
-  startUpload() {
+  startUpload(nama) {
     setStatus('Uploading Image...');
     if (nullImg == base64Image) {
       setStatus(errMessage);
@@ -48,8 +48,7 @@ class _WebViewState extends State<WebVieww> {
       print(errMessage);
       return;
     }
-    String fileName = widget.nomor + 'abcc.png';
-    //print(base64Image);
+    String fileName = widget.nomor + '$nama.png';
     print(fileName);
     upload(fileName);
     upload(base64Image);
@@ -76,6 +75,7 @@ class _WebViewState extends State<WebVieww> {
   ontabbb(
     BuildContext context,
     String title,
+    String nama,
   ) {
     return showDialog(
       context: context,
@@ -116,7 +116,7 @@ class _WebViewState extends State<WebVieww> {
                             onPressed: () async {
                               data = await _signatureCanvas.exportBytes();
                               base64Image = base64.encode(data);
-                              startUpload();
+                              startUpload(nama);
                             },
                           ),
                           IconButton(
@@ -160,7 +160,7 @@ class _WebViewState extends State<WebVieww> {
           onPressed: () {
             ontabbb(
               context,
-              "TTD PELANGGAN",
+              "TTD PELANGGAN","pelanggan"
             );
           },
         )));
@@ -176,7 +176,7 @@ class _WebViewState extends State<WebVieww> {
           onPressed: () {
             ontabbb(
               context,
-              "TTD Koordinator IKR",
+              "TTD Koordinator IKR","IKR"
             );
           },
         )));
@@ -192,7 +192,7 @@ class _WebViewState extends State<WebVieww> {
           onPressed: () {
             ontabbb(
               context,
-              "TTD Pelaksana",
+              "TTD Pelaksana","Pelaksana"
             );
           },
         )));

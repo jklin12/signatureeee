@@ -19,16 +19,17 @@ class _SpkState extends State<Spk> {
       isLoading = true;
     });
     final response =
-        await http.get("http://172.16.15.234/api_spk/index.php/spk");
+        await http.get("http://172.16.15.234/spk/api/spklist.php");
     if (response.statusCode == 200) {
       list = (json.decode(response.body) as List)
           .map((data) => new ModelSpk.fromJson(data))
           .toList();
+          
       setState(() {
         isLoading = false;
       });
     } else {
-      throw Exception('Failed to load photos');
+      throw Exception('Failed to load ');
     }
   }
 
@@ -52,13 +53,14 @@ class _SpkState extends State<Spk> {
                     padding: const EdgeInsets.all(5.0),
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
+                        print(list[index].nama);
+                        /*Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => WebVieww(
                                       spk: list[index].spk,
                                       nomor: list[index].nomor,
-                                    )));
+                                    )));*/
                       },
                       child: Card(
                         elevation: 6.0,
